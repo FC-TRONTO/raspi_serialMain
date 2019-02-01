@@ -6,12 +6,15 @@ import time
 class SerialController:
     def __init__(self):
         # USBポートを使い、シリアル通信開始
-        self.ev3_serial = serial.Serial('/dev/ttyUSB0', 115200, timeout=10)
-        print(self.ev3_serial.portstr)
+        # 送信用と受信用で2つポートを使う
+        self.ev3_recv_serial = serial.Serial('/dev/ttyUSB0', 115200, timeout=10)
+        self.ev3_send_serial = serial.Serial('/dev/ttyUSB1', 115200, timeout=10)
+        print(self.ev3_recv_serial.portstr)
+        print(self.ev3_send_serial.portstr)
     
     def receiveDataLoop(self, shmem):
         while 1:
-            read_data = self.ev3_serial.readline()
+            read_data = self.ev3_recv_serial.readline()
             # 読み込んだ文字列を,区切りでリストに変換
             sensorValues = read_data.strip().split(",")
             # 共有メモリの値を更新
@@ -26,7 +29,7 @@ class SerialController:
             time.sleep(0.1)
     
     def write(self, sendData):
-        self.ev3_serial.write(sendData)
+        self.ev3_send_serial.write(sendData)
         print('write', sendData)
 
     def target(self, shmem):
